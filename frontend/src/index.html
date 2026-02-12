@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TPS Resolver</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="stylesheet" href="/static/output.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-4xl">
+    
+    <h1 class="text-2xl font-bold mb-4 text-center lg:mb-8">Optimizador de Ruta</h1>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Columna izquierda -->
+        <div>
+        <textarea
+          id="direcciones"
+          class="w-full border p-2 rounded overflow-y-auto hover:bg-gray-200 focus:bg-gray-200"
+          rows="4"
+          placeholder="Esribe aquí las direcciones (linea a linea)"
+        ></textarea>
+        <button
+          id="calcularRuta"
+          class=" w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 my-2"
+        >Calcular mejor ruta</button>
+        <hr class="border-blue-600 my-2">
+        <div id="resultado" class="text-white text-center"></div>
+      </div>
+      <!-- Columna derecha -->
+      <div>
+        <div id="mapa" class="h-96 rounded-lg border"></div>
+      </div>
+      
+</body>
+
+<script src="/static/main.js"></script>
+</html>
