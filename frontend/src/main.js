@@ -2,6 +2,10 @@ const boton = document.getElementById("calcularRuta");
 const textarea = document.getElementById("direcciones");
 const resultadoDiv = document.getElementById("resultado");
 
+let mapa;
+let marcadores = [];
+let lineaRuta;
+
 function animarCarga() {
     resultadoDiv.innerHTML = `
         <style>
@@ -27,10 +31,6 @@ function animarCarga() {
     `;
 }
 
-let mapa;
-let marcadores = [];
-let lineaRuta;
-
 function inicializarMapa() {
     mapa = L.map('mapa').setView([42.0, -8.0], 7);
     
@@ -39,17 +39,18 @@ function inicializarMapa() {
     }).addTo(mapa);
 }
 
-function limpiarMapa() {
-    marcadores.forEach(marker => mapa.removeLayer(marker));
-    marcadores = [];
-    if (lineaRuta) {
+function limpiarMapa(limpiarMarcadores=true, limpiarLinea=true) {
+    if (limpiarMarcadores) {
+        marcadores.forEach(marker => mapa.removeLayer(marker));
+        marcadores = [];
+    }
+    if (limpiarLinea && lineaRuta) {
         mapa.removeLayer(lineaRuta);
         lineaRuta = null;
     }
 }
 
-async function dibujarEnMapa(direcciones, coordenadas, rutaIndices) {
-    limpiarMapa();
+function obtenerMarcadores(direcciones, coordenadas, rutaIndices) {
     const coordsOrdenadas = rutaIndices.map(i => {
         const [lon, lat] = coordenadas[i].split(',');
         return [parseFloat(lat), parseFloat(lon)];
@@ -60,6 +61,20 @@ async function dibujarEnMapa(direcciones, coordenadas, rutaIndices) {
             .bindPopup(`<b>${index + 1}.</b> ${direcciones[rutaIndices[index]]}`);
         marcadores.push(marker);
     });
+    return coordsOrdenadas;
+}
+
+function ajustarZoom() {
+    if (marcadores.length > 0) {
+        const group = new L.featureGroup(marcadores);
+        mapa.fitBounds(group.getBounds().pad(0.1));
+    }
+}
+
+async function dibujarRutaIndices(direcciones, coordenadas, rutaIndices) {
+    limpiarMapa();
+    const coordsOrdenadas = obtenerMarcadores(direcciones, coordenadas, rutaIndices);
+    
     if (coordsOrdenadas.length > 1) {
         lineaRuta = L.polyline(coordsOrdenadas, {
             color: 'blue',
@@ -67,10 +82,21 @@ async function dibujarEnMapa(direcciones, coordenadas, rutaIndices) {
             opacity: 0.8
         }).addTo(mapa);
     }
-    if (marcadores.length > 0) {
-        const group = new L.featureGroup(marcadores);
-        mapa.fitBounds(group.getBounds().pad(0.1));
+    ajustarZoom();
+}
+
+async function dibujarRutaGeoJson(direcciones, coordenadas, rutaIndices, rutaGeoJson) {
+    limpiarMapa();
+    const coordsOrdenadas = obtenerMarcadores(direcciones, coordenadas, rutaIndices);
+
+    if (coordsOrdenadas.length > 1) {
+        lineaRuta = L.geoJSON(rutaGeoJson, {
+            color: 'blue',
+            weight: 4,
+            opacity: 0.8
+        }).addTo(mapa);
     }
+    ajustarZoom();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -148,7 +174,11 @@ boton.addEventListener("click", async () => {
         resultadoDiv.appendChild(fragment);
         
         const rutaIndices = data.ruta_indices;
-        await dibujarEnMapa(lineas, data.coordenadas, rutaIndices);
+        await dibujarRutaIndices(lineas, data.coordenadas, rutaIndices);
+        
+        if (data.ruta_geojson) {
+            await dibujarRutaGeoJson(lineas, data.coordenadas, rutaIndices, data.ruta_geojson);
+        }
     } catch (error) {
         resultadoDiv.innerHTML = `<span class="text-red-600">Error al conectar con el servidor</span>`;
         console.error(error);
