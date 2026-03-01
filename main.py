@@ -11,7 +11,8 @@ geo = Geocodificador()
 
 app = FastAPI(title="TPS Resolver")
 templates = Jinja2Templates(directory="frontend/src")
-app.mount("/static", StaticFiles(directory="frontend/src"), name="static")
+app.mount("/static", StaticFiles(directory="frontend/dist"), name="static")
+app.mount("/src", StaticFiles(directory="frontend/src"), name="src")
 
 class DireccionesInput(BaseModel):
     direcciones: List[str]
@@ -32,11 +33,21 @@ def encontrar_mejor_ruta(data: DireccionesInput):
     """ Encuentra la ruta óptima entre las direcciones proporcionadas. """
     coordenadas = geo.buscar_coordenadas(data.direcciones)
     if not coordenadas:
-        return {"orden_optimo": ["Error geocodificando direcciones"]}
+        return {
+            "orden_optimo": ["Error geocodificando direcciones"],
+            "tiempos_optimos": [],
+            "coordenadas": [],
+            "ruta_indices": []
+        }
 
     matriz_tiempos = geo.obtener_matriz_tiempos(coordenadas)
     if not matriz_tiempos:
-        return {"orden_optimo": ["Error obteniendo tiempos de ruta"]}
+        return {
+            "orden_optimo": ["Error obteniendo tiempos de ruta"],
+            "tiempos_optimos": [],
+            "coordenadas": coordenadas,
+            "ruta_indices": []
+        }
 
     optimizador = Optimizador(data.direcciones, matriz_tiempos)
     ruta_indices = optimizador.resolver_ruta_optima()
