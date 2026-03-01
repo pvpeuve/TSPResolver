@@ -17,11 +17,16 @@ app.mount("/src", StaticFiles(directory="frontend/src"), name="src")
 class DireccionesInput(BaseModel):
     direcciones: List[str]
 
+class RutaGeoJSON(BaseModel):
+    type: str
+    coordinates: list
+
 class RutaOutput(BaseModel):
     orden_optimo: List[str]
     tiempos_optimos: List[float]
     coordenadas: List[str]
     ruta_indices: List[int]
+    ruta_geojson: RutaGeoJSON | None
 
 @app.get("/")
 async def home(request: Request):
@@ -37,7 +42,8 @@ def encontrar_mejor_ruta(data: DireccionesInput):
             "orden_optimo": ["Error geocodificando direcciones"],
             "tiempos_optimos": [],
             "coordenadas": [],
-            "ruta_indices": []
+            "ruta_indices": [],
+            "ruta_geojson": None
         }
 
     matriz_tiempos = geo.obtener_matriz_tiempos(coordenadas)
@@ -46,7 +52,8 @@ def encontrar_mejor_ruta(data: DireccionesInput):
             "orden_optimo": ["Error obteniendo tiempos de ruta"],
             "tiempos_optimos": [],
             "coordenadas": coordenadas,
-            "ruta_indices": []
+            "ruta_indices": [],
+            "ruta_geojson": None
         }
 
     optimizador = Optimizador(data.direcciones, matriz_tiempos)
@@ -55,9 +62,19 @@ def encontrar_mejor_ruta(data: DireccionesInput):
     orden_direcciones = [data.direcciones[i] for i in ruta_indices]
     tiempos_optimos = optimizador.obtener_tiempos_optimos()
 
+    orden_coordenadas = [coordenadas[i] for i in ruta_indices]
+    ruta_geojson_data = geo.obtener_ruta(orden_coordenadas)
+    
+    # Enviar GeoJSON completo o None
+    ruta_geojson = None
+    if ruta_geojson_data and "routes" in ruta_geojson_data and len(ruta_geojson_data["routes"]) > 0:
+        ruta_geojson = ruta_geojson_data["routes"][0]["geometry"]
+    
+
     return {
         "orden_optimo": orden_direcciones,
         "tiempos_optimos": tiempos_optimos,
         "coordenadas": coordenadas,
-        "ruta_indices": ruta_indices
+        "ruta_indices": ruta_indices,
+        "ruta_geojson": ruta_geojson
     }
