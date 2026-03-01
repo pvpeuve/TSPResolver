@@ -11,6 +11,7 @@ class Geocodificador:
     def __init__(self):
         self.url_address = "https://nominatim.openstreetmap.org/search"
         self.url_coords = "http://router.project-osrm.org/table/v1/driving/"
+        self.url_route = "http://router.project-osrm.org/route/v1/driving/"
 
     def buscar_coordenadas(self, direcciones: list[str]) -> list[str] | None:
         coordenadas = []
@@ -58,6 +59,18 @@ class Geocodificador:
             return None
         return data["durations"]
 
+    def obtener_ruta(self, coordenadas: list[str]) -> dict | None:
+        coords_osrm = ";".join(coordenadas)
+        url = f"{self.url_route}{coords_osrm}"
+        params = {"overview": "full", "geometries": "geojson"}
+        try:
+            response = requests.get(url, params=params, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException:
+            return None
+        return data
+
 if __name__ == "__main__":
     geocodificador = Geocodificador()
     direcciones = ["Madrid", "Barcelona", "Valencia"]
@@ -65,3 +78,5 @@ if __name__ == "__main__":
     print("Coordenadas:", coordenadas)
     matriz_tiempos = geocodificador.obtener_matriz_tiempos(coordenadas)
     print("Matriz de tiempos:", matriz_tiempos)
+    ruta = geocodificador.obtener_ruta(coordenadas)
+    print("Ruta:", ruta)
