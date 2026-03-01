@@ -42,11 +42,25 @@ Optimizador de rutas utilizando el algoritmo **Traveling Salesman Problem (TSP)*
 5. **Ruta detallada**: OSRM /route endpoint proporciona GeoJSON
 6. **Visualización**: Leaflet.js muestra marcadores + ruta precisa
 
+## 🏗️ Arquitectura
+
+
+El proyecto sigue una arquitectura cliente-servidor:
+```bash
+Frontend (Leaflet + JS)
+    ⬇️
+Backend (FastAPI)
+    ⬇️
+Servicios externos (Nominatim + OSRM)
+```
+El backend actúa como capa de orquestación y normalización de datos,
+desacoplando el cliente de los servicios externos.
+
 ## 🛠️ Instalación
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/TSPResolver.git
+git clone https://github.com/pvpeuve/TSPResolver.git
 cd TSPResolver
 ```
 
@@ -134,6 +148,13 @@ TSPResolver/
 | **Escritorio** | **Móvil** |
 |--------------|-----------|
 | ![Versión escritorio](assets/pc_screenshot.png){width=400} | ![Versión móvil](assets/mobile_screenshot.png){width=200} |
+
+## ⚠️ Limitaciones actuales
+
+- Uso de APIs públicas (pueden tener límites de uso)
+- No incluye sistema de autenticación
+- No persiste rutas en base de datos
+- Pensado como MVP / demo técnica
 
 ## 🐛 Problemas Comunes
 
