@@ -1,6 +1,6 @@
 # TSP Resolver 🚗
 
-Optimizador de rutas utilizando el algoritmo **Traveling Salesman Problem (TSP)** con interfaz web interactiva y mapas en tiempo real.
+Optimizador de rutas utilizando el algoritmo **Traveling Salesman Problem (TSP)** con interfaz web interactiva y visualización precisa de rutas en tiempo real.
 
 ## 🚀 Características
 
@@ -8,6 +8,7 @@ Optimizador de rutas utilizando el algoritmo **Traveling Salesman Problem (TSP)*
 - 📍 **Geocodificación** de direcciones a coordenadas
 - 🚀 **Optimización de rutas** con OR-Tools
 - ⏱️ **Cálculo de tiempos** de viaje entre puntos
+- 🛣️ **Rutas precisas** con OSRM API
 - 📱 **Diseño responsive** con Tailwind CSS
 - 🔄 **Visualización en tiempo real** de la ruta óptima
 
@@ -17,18 +18,29 @@ Optimizador de rutas utilizando el algoritmo **Traveling Salesman Problem (TSP)*
 - **FastAPI** - Framework web moderno para Python
 - **OR-Tools** - Biblioteca de optimización de Google
 - **Nominatim API** - Geocodificación de direcciones
-- **OSRM API** - Cálculo de matrices de tiempos
+- **OSRM API** - Cálculo de matrices y rutas precisas
+- **Pydantic** - Validación de datos
 
 ### Frontend
-- **Leaflet.js** - Mapas interactivos
+- **Leaflet.js** - Mapas interactivos y GeoJSON
 - **Tailwind CSS** - Framework de CSS utilitario
-- **JavaScript ES6+** - Lógica del cliente
+- **JavaScript ES6+** - Lógica del cliente asíncrona
 
 ## 📋 Requisitos
 
-- Python 3.8+
-- Node.js 16+
-- npm o yarn
+- Python **3.8+**
+- Node.js **16+**
+- **npm** o **yarn**
+- Conexión a **internet** para APIs externas
+
+## ⚙️ Flujo de Trabajo
+
+1. **Entrada de usuario**: Direcciones en formato texto
+2. **Geocodificación**: Conversión a coordenadas con Nominatim
+3. **Matriz de tiempos**: Cálculo con OSRM /table endpoint
+4. **Optimización TSP**: OR-Tools encuentra el orden óptimo
+5. **Ruta detallada**: OSRM /route endpoint proporciona GeoJSON
+6. **Visualización**: Leaflet.js muestra marcadores + ruta precisa
 
 ## 🛠️ Instalación
 
@@ -71,7 +83,7 @@ cd ..
 
 ### 1. Iniciar el servidor backend
 ```bash
-python main.py
+uvicorn main:app --reload
 ```
 
 ### 2. Acceder a la aplicación
@@ -82,20 +94,22 @@ Abre tu navegador en: **http://localhost:8000**
 1. **Introduce las direcciones** en el área de texto (una por línea)
 2. **Haz clic en "Calcular mejor ruta"**
 3. **Visualiza los resultados:**
-   - Lista ordenada de direcciones con tiempos
-   - Mapa interactivo con marcadores y ruta
-4. **Explora el mapa** haciendo clic en los marcadores
+   - 📍 Lista ordenada de direcciones con tiempos estimados
+   - 🗺️ Mapa interactivo con marcadores numerados
+   - 🛣️ Ruta precisa siguiendo carreteras reales
+4. **Explora el mapa** haciendo clic en los marcadores para ver detalles
 
 ## 📁 Estructura del Proyecto
 
 ```
 TSPResolver/
 ├── main.py              # Servidor FastAPI principal
-├── geocodificador.py    # Lógica de geocodificación
+├── geocodificador.py    # Lógica de geocodificación y OSRM
 ├── optimizador.py       # Algoritmo TSP con OR-Tools
 ├── requirements.txt     # Dependencias Python
 ├── README.md           # Documentación
 ├── .gitignore          # Archivos ignorados por Git
+├── assets/             # Capturas de pantalla y documentación
 └── frontend/           # Aplicación web
     ├── src/
     │   ├── index.html  # Página principal
@@ -108,30 +122,40 @@ TSPResolver/
     └── tailwind.config.js # Configuración de Tailwind
 ```
 
-## 🔧 Configuración
+## 🎨 Personalización
 
-### Variables de Entorno
-No se requieren variables de entorno para el funcionamiento básico.
-
-### Personalización
-- **Mapa inicial:** Modifica las coordenadas en `main.js` (línea 11)
+- **Mapa inicial:** Modifica las coordenadas en `main.js` (línea 35)
 - **Estilos:** Edita `tailwind.config.js` para personalizar Tailwind
 - **APIs:** Las APIs de Nominatim y OSRM son gratuitas y no requieren API key
+- **Colores:** Personaliza los colores en `main.js` (líneas 77, 93)
+
+## 📷 Capturas de Pantalla
+
+| **Escritorio** | **Móvil** |
+|--------------|-----------|
+| ![Versión escritorio](assets/pc_screenshot.png){width=400} | ![Versión móvil](assets/mobile_screenshot.png){width=200} |
 
 ## 🐛 Problemas Comunes
 
-### **Error: "Error geocodificando direcciones"**
+### "Error geocodificando direcciones"
 - Verifica tu conexión a internet
-- Asegúrate que las direcciones son válidas
-- Las APIs pueden tener límites de uso
+- Asegúrate que las direcciones son válidas y específicas
+- Las APIs pueden tener límites de uso (espera entre solicitudes)
 
-### **Error: "Error obteniendo tiempos de ruta"**
+### "Error obteniendo tiempos de ruta"
 - Revisa que las coordenadas sean válidas
 - La API de OSRM puede estar temporalmente no disponible
+- Reduce el número de direcciones (máximo recomendado: 10)
 
-### **El mapa no se carga**
+### El mapa no se carga
 - Verifica la consola del navegador (F12)
 - Asegúrate que Leaflet.js se esté cargando correctamente
+- Revisa que no haya bloqueadores de anuncios
+
+### No se muestra la ruta precisa
+- Verifica que la respuesta del backend contenga `ruta_geojson`
+- Revisa la consola para errores de JavaScript
+- Asegúrate que OSRM esté devolviendo geometría válida
 
 ## 🤝 Contribuir
 
@@ -139,7 +163,7 @@ No se requieren variables de entorno para el funcionamiento básico.
 
 1. Fork el proyecto
 2. Crea una rama (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'Añadir nueva funcionalidad'`)
+3. Commit tus cambios (`git commit -m 'feat: añadir nueva funcionalidad'`)
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Abre un Pull Request
 
@@ -151,6 +175,7 @@ Este proyecto está licenciado bajo la **MIT License** - ver el archivo [LICENSE
 
 - **Google OR-Tools** - Biblioteca de optimización
 - **Leaflet.js** - Biblioteca de mapas
-- **OpenStreetMap** - Datos de mapas
+- **OpenStreetMap** - Datos de mapas libres
 - **Nominatim** - Servicio de geocodificación
-- **OSRM** - Servicio de rutas
+- **OSRM** - Motor de rutas de código abierto
+- **Tailwind CSS** - Framework de CSS utilitario
