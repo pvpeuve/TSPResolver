@@ -6,11 +6,14 @@ const btnReal = document.getElementById("btn-real");
 
 let modoVista = "simple";
 let datosActuales = null;
-
 let mapa;
 let marcadores = [];
 let lineaRutaSimple;
 let lineaRutaReal;
+
+document.addEventListener("DOMContentLoaded", () => {
+    inicializarMapa();
+});
 
 function actualizarBotones() {
     if (modoVista === "simple") {
@@ -171,11 +174,6 @@ function cambiarVista(modo) {
     actualizarBotones();
     redibujarRuta();
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    inicializarMapa();
-});
-
 
 boton.addEventListener("click", async () => {
     const lineas = textarea.value.split("\n")
