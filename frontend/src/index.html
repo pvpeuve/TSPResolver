@@ -27,14 +27,17 @@
           class=" w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 my-2"
         >Calcular mejor ruta</button>
         <hr class="border-blue-600 my-2">
-        <div id="resultado" class="text-white text-center"></div>
+        <div id="resultado" class="text-center">Añade las direcciones deseadas al campo de texto y presiona el botón para calcular la ruta</div>
       </div>
       <!-- Columna derecha -->
       <div>
-        <div id="mapa" class="h-96 rounded-lg border"></div>
+        <div id="mapa" class="h-96 rounded-lg"></div>
+        <div class="flex justify-evenly gap-2 my-2">
+          <button id="btn-simple" class="px-3 py-1 bg-blue-600 text-white rounded">Vista simple</button>
+          <button id="btn-real" class="px-3 py-1 bg-gray-200 rounded">Ruta real</button>
+        </div>
       </div>
       
-</body>
-
 <script src="/src/main.js"></script>
+</body>
 </html>
